@@ -1,33 +1,9 @@
 const yargs = require('yargs');
-const fetch = require('node-fetch');
-const pino = require('pino');
-
-const logger = pino({ level: process.env.LOG_LEVEL || 'info'});
+const weather = require('./src/weather');
+const {logger} = require('./src/utility/logger');
 
 // Customize yargs version
 yargs.version('1.1.0');
-
-async function fetchWeatherForSingleDate(date) {
-    logger.info("Fetching weather for specified date.");
-
-    let queryUrl = `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/Mt%20Eden%2C%20Auckland%2C%20New%20Zealand/${date}/${date}?unitGroup=metric&include=days%2Cobs&key=V6A8KLPTXBWXUDMZAGAUXPFJE&contentType=json`;
-    
-    try {
-        const response = await fetch(queryUrl);
-        const responseJson = await response.json();
-        logger.info("Weather API call and JSON conversion complete.");
-        return responseJson.days[0];
-    } catch (error) {
-        logger.error(error);
-        return;
-    }
-}
-
-function formatWeatherIntoString(weatherForSingleDay) {
-    logger.info("Formatting weather details into string");
-    var weatherString = `Conditions: ${weatherForSingleDay.conditions} | Temperature: ${weatherForSingleDay.temp} degrees`;
-    return weatherString
-}
 
 function formatRunDetailsIntoString(runCompleted) {
     logger.info("Formatting run details into string");
@@ -37,8 +13,8 @@ function formatRunDetailsIntoString(runCompleted) {
 
 async function generateOutputString(runCompleted, date) {
     logger.info("Generating output string");
-    var weatherForSingleDay = await fetchWeatherForSingleDate(date);
-    var outputString = formatRunDetailsIntoString(runCompleted) + " | " + formatWeatherIntoString(weatherForSingleDay);
+    var weatherForSingleDay = await weather.fetchWeatherForSingleDate(date);
+    var outputString = formatRunDetailsIntoString(runCompleted) + " | " + weather.formatWeatherIntoString(weatherForSingleDay);
     return outputString;
 }
    
