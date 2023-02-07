@@ -1,13 +1,16 @@
 const yargs = require('yargs');
 const weather = require('./src/weather');
 const {logger} = require('./src/utility/logger');
+const fs = require('fs')
 
 // Customize yargs version
 yargs.version('1.1.0');
 
+
+
 function formatRunDetailsIntoString(runCompleted) {
     logger.info("Formatting run details into string");
-    var runDetailsString = `Distance Run: ${runCompleted.distanceRan}km | Time it took: ${runCompleted.timeTaken} minutes | Average Pace: ${runCompleted.averagePace} min/km`;
+    var runDetailsString = `Date: ${runCompleted.dateCompleted} | Distance Run: ${runCompleted.distanceRan}km | Time it took: ${runCompleted.timeTaken} minutes | Average Pace: ${runCompleted.averagePace} min/km`;
     return runDetailsString
 }
 
@@ -16,6 +19,14 @@ async function generateOutputString(runCompleted, date) {
     var weatherForSingleDay = await weather.fetchWeatherForSingleDate(date);
     var outputString = formatRunDetailsIntoString(runCompleted) + " | " + weather.formatWeatherIntoString(weatherForSingleDay);
     return outputString;
+}
+
+function outputResultsToFile(data) {
+    logger.info("Outputting results to file");
+    let newLineToAdd = data + "\n";
+    fs.appendFile('./output/results.txt', newLineToAdd , (error) => {
+        logger.error(error)
+    });
 }
    
 // Create add command
@@ -50,7 +61,10 @@ yargs.command({
           };
 
           generateOutputString(runCompleted, argv.dateCompleted)
-          .then(outputString => console.log(outputString))
+          .then(outputString =>  {
+            console.log(outputString)
+            outputResultsToFile(outputString)
+          })
           .catch(error => logger.error(error));
     }
 })
