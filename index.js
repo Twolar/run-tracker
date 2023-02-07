@@ -1,17 +1,16 @@
 const yargs = require('yargs');
 const fetch = require('node-fetch');
 
-
-   
 // Customize yargs version
 yargs.version('1.1.0');
 
-function fetchWeatherForSingleDate(date) {
+async function fetchWeatherForSingleDate(date) {
     let queryUrl = `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/Mt%20Eden%2C%20Auckland%2C%20New%20Zealand/${date}/${date}?unitGroup=metric&include=days%2Cobs&key=V6A8KLPTXBWXUDMZAGAUXPFJE&contentType=json`;
     
-    return fetch(queryUrl)
-        .then(response => response.json())
-        .then(json => json.days[0]);    
+    const response = await fetch(queryUrl);
+    const responseJson = await response.json();
+
+    return responseJson.days[0];
 }
 
 function formatWeatherIntoString(weatherForSingleDay) {
@@ -24,10 +23,10 @@ function formatRunDetailsIntoString(runCompleted) {
     return runDetailsString
 }
 
-function outputResult(runCompleted, date) {
-    fetchWeatherForSingleDate(date)
-    .then(weatherForSingleDay => 
-        console.log(formatRunDetailsIntoString(runCompleted) + " | " + formatWeatherIntoString(weatherForSingleDay)));
+async function generateOutputString(runCompleted, date) {
+    var weatherForSingleDay = await fetchWeatherForSingleDate(date);
+    var outputString = formatRunDetailsIntoString(runCompleted) + " | " + formatWeatherIntoString(weatherForSingleDay);
+    return outputString;
 }
    
 // Create add command
@@ -61,7 +60,7 @@ yargs.command({
             dateCompleted: argv.dateCompleted
           };
 
-        outputResult(runCompleted, argv.dateCompleted);
+          generateOutputString(runCompleted, argv.dateCompleted).then(outputString => console.log(outputString));
     }
 })
 
