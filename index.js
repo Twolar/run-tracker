@@ -7,10 +7,14 @@ yargs.version('1.1.0');
 async function fetchWeatherForSingleDate(date) {
     let queryUrl = `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/Mt%20Eden%2C%20Auckland%2C%20New%20Zealand/${date}/${date}?unitGroup=metric&include=days%2Cobs&key=V6A8KLPTXBWXUDMZAGAUXPFJE&contentType=json`;
     
-    const response = await fetch(queryUrl);
-    const responseJson = await response.json();
-
-    return responseJson.days[0];
+    try {
+        const response = await fetch(queryUrl);
+        const responseJson = await response.json();
+        return responseJson.days[0];
+    } catch (error) {
+        console.error(error);
+        return;
+    }
 }
 
 function formatWeatherIntoString(weatherForSingleDay) {
