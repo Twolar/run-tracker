@@ -64,7 +64,9 @@ yargs.command({
             dateCompleted: argv.dateCompleted
           };
 
-          generateOutputString(runCompleted, argv.dateCompleted).then(outputString => console.log(outputString));
+          generateOutputString(runCompleted, argv.dateCompleted)
+          .then(outputString => console.log(outputString))
+          .catch(error => console.error(error));
     }
 })
 
