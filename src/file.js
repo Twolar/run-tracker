@@ -3,18 +3,21 @@ const {logger} = require('./utility/logger');
 
 const completedRunsFile = './output/completedRuns.txt';
 
-function addCompletedRun(data) {
+function addCompletedRun(data, file = completedRunsFile) {
     logger.info("Outputting results to file");
     let newLineToAdd = data + "\n";
-    fs.appendFile(completedRunsFile, newLineToAdd , (error) => {
-        logger.error(error)
+    fs.appendFile(file, newLineToAdd , (error) => {
+        logger.error(error);
+        return false;
     });
+    return true;
 }
 
-function getCompletedRuns() {
+function getCompletedRuns(file = completedRunsFile) {
     logger.info("Getting run results from file");
-    let completedRuns = fs.readFileSync(completedRunsFile,'utf8', (error) => {
+    let completedRuns = fs.readFileSync(file,'utf8', (error) => {
         logger.error(error);
+        return false;
     });
     
     let completedRunsArray = completedRuns.split("\n");
