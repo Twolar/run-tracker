@@ -1,18 +1,10 @@
 const yargs = require('yargs');
 const weather = require('./src/weather');
 const {logger} = require('./src/utility/logger');
-const fs = require('fs')
+const completedRunsFile = require('./src/file');
 
 // Customize yargs version
 yargs.version('1.1.0');
-
-
-
-function formatRunDetailsIntoString(runCompleted) {
-    logger.info("Formatting run details into string");
-    var runDetailsString = `Date: ${runCompleted.dateCompleted} | Distance Run: ${runCompleted.distanceRan}km | Time it took: ${runCompleted.timeTaken} minutes | Average Pace: ${runCompleted.averagePace} min/km`;
-    return runDetailsString
-}
 
 async function generateOutputString(runCompleted, date) {
     logger.info("Generating output string");
@@ -21,12 +13,10 @@ async function generateOutputString(runCompleted, date) {
     return outputString;
 }
 
-function outputResultsToFile(data) {
-    logger.info("Outputting results to file");
-    let newLineToAdd = data + "\n";
-    fs.appendFile('./output/results.txt', newLineToAdd , (error) => {
-        logger.error(error)
-    });
+function formatRunDetailsIntoString(runCompleted) {
+    logger.info("Formatting run details into string");
+    var runDetailsString = `Date: ${runCompleted.dateCompleted} | Distance Run: ${runCompleted.distanceRan}km | Time it took: ${runCompleted.timeTaken} minutes | Average Pace: ${runCompleted.averagePace} min/km`;
+    return runDetailsString
 }
    
 // Create add command
@@ -62,10 +52,15 @@ yargs.command({
 
           generateOutputString(runCompleted, argv.dateCompleted)
           .then(outputString =>  {
-            console.log(outputString)
-            outputResultsToFile(outputString)
+            console.log("New run added:\n" + outputString);
+            completedRunsFile.addCompletedRun(outputString);
           })
           .catch(error => logger.error(error));
+
+          let completedRunsArray = completedRunsFile.getCompletedRuns();
+          let completedRunsCount = completedRunsArray.filter(run => run).length;
+
+          console.log(`${completedRunsCount} Completed runs in file: ${completedRunsArray.map( x => '\n' + x)}`)
     }
 })
 
