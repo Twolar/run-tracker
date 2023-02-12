@@ -20,8 +20,8 @@ function getCompletedRuns(file = completedRunsFile) {
         return false;
     });
     
-    let completedRunsArray = completedRuns.split("\n");
-    completedRunsArray.pop();
+    var completedRunsArray = completedRuns.split("\n");
+    completedRunsArray.pop(); // Remove last empty variable for extra \n
 
     return completedRunsArray;
 }
