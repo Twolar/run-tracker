@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "testData": "node index.js runCompleted --dateCompleted='2023-02-08' --distanceCompleted=5.5 --timeTaken=25" ,
+    "start": "node index.js",
     "test": "jest"
   },
   "keywords": [],
