@@ -48,19 +48,19 @@ yargs.command({
             timeTaken: argv.timeTaken,
             averagePace: Number(argv.timeTaken/argv.distanceCompleted).toFixed(2),
             dateCompleted: argv.dateCompleted
-          };
+        };
 
-          generateOutputString(runCompleted, argv.dateCompleted)
-          .then(outputString =>  {
-            console.log("New run added:\n" + outputString);
-            completedRunsFile.addCompletedRun(outputString);
-          })
-          .catch(error => logger.error(error));
+        generateOutputString(runCompleted, argv.dateCompleted)
+        .then(outputString =>  {
+        console.log("New run added:\n" + outputString);
+        completedRunsFile.addCompletedRun(outputString);
+        })
+        .catch(error => logger.error(error));
 
-          let completedRunsArray = completedRunsFile.getCompletedRuns();
-          let completedRunsCount = completedRunsArray.filter(run => run).length;
+        let completedRunsArray = completedRunsFile.getCompletedRuns();
+        let completedRunsCount = completedRunsArray.filter(run => run).length;
 
-          console.log(`${completedRunsCount} Completed runs in file: ${completedRunsArray.map( x => '\n' + x)}`)
+        console.log(`${completedRunsCount} Completed runs in file: ${completedRunsArray.map( x => '\n' + x)}`);
     }
 })
 
