@@ -6,27 +6,27 @@ const router = express.Router();
 
 // Get all completed runs
 router.get('/', (req, res) => {
-    logger.info("CompletedRun GET ALL REQUEST INITIATED");
+    logger.info("GET REQUEST - CompletedRuns Fetch Initiated");
 
     var sql = "select * from completed_runs"
     var params = []
     db.all(sql, params, (err, rows) => {
         if (err) {
           res.status(400).json({"error":err.message});
-          logger.error(`CompletedRun GET ALL REQUEST FAILED: ${err}`);
+          logger.error(`GET REQUEST - CompletedRuns Fetch Failed: ${err}`);
           return;
         }
         res.json({
             "message":"success",
             "data":rows
         });
-        logger.info("CompletedRun GET ALL REQUEST SUCCESFUL");
+        logger.info("GET REQUEST - CompletedRuns Fetched Succesfully");
       });
 });
 
 // Get single completed run based on ID
 router.get("/:id", (req, res) => {
-    logger.info("CompletedRun GET SINGLE REQUEST INITIATED");
+    logger.info("GET REQUEST - CompletedRun Fetch Initiated");
 
     var sql = "select * from completed_runs where id = ?"
     var params = [req.params.id]
@@ -34,20 +34,20 @@ router.get("/:id", (req, res) => {
     db.get(sql, params, (err, row) => {
         if (err) {
           res.status(400).json({"error":err.message});
-          logger.error(`CompletedRun GET SINGLE REQUEST FAILED: ${err}`);
+          logger.error(`GET REQUEST - CompletedRun Fetched Failed: ${err}`);
           return;
         }
         res.json({
             "message":"success",
             "data":row
         });
-        logger.info("CompletedRun GET SINGLE REQUEST SUCCESFUL");
+        logger.info("GET REQUEST - CompletedRun Fetched Successfully");
       });
 });
 
 // Add new completed run
 router.post('/create', (req, res) => {
-    logger.info("CompletedRun POST REQUEST INITIATED");
+    logger.info("POST REQUEST - CompletedRun Created Initiated");
 
     let errors = [];
     if (!req.body.dateCompleted){
@@ -76,7 +76,7 @@ router.post('/create', (req, res) => {
     db.run(sql, params, function (err, result) {
         if (err) {
             res.status(400).json({"error": err.message})
-            logger.error(`CompletedRun POST REQUEST FAILED: ${err}`);
+            logger.error(`POST REQUEST - CompletedRun Created Failed: ${err}`);
             return;
         }
         res.json({
@@ -84,13 +84,13 @@ router.post('/create', (req, res) => {
             "data": runCompleted,
             "id" : this.lastID
         });
-        logger.info("CompletedRun POST REQUEST SUCCESFUL");
+        logger.info("POST REQUEST - CompletedRun Created Successfully");
     });
 });
 
 // Update existing completed run based on ID
 router.patch("/:id", (req, res) => {
-    logger.info("CompletedRun PATCH REQUEST INITIATED");
+    logger.info("PATCH REQUEST - CompletedRun Edit Initiated");
 
     const runCompleted = {
         dateCompleted: req.body.date,
@@ -107,7 +107,7 @@ router.patch("/:id", (req, res) => {
         function (err, result) {
             if (err) {
                 res.status(400).json({"error": res.message})
-                logger.error(`CompletedRun PATCH REQUEST FAILED: ${err}`);
+                logger.error(`PATCH REQUEST - CompletedRun Edit Failed: ${err}`);
                 return;
             }
             res.json({
@@ -115,24 +115,24 @@ router.patch("/:id", (req, res) => {
                 data: runCompleted,
                 changes: this.changes
             });
-            logger.info("CompletedRun PATCH REQUEST SUCCESFUL");
+            logger.info("PATCH REQUEST - CompletedRun Edited Successfully");
     });
 });
 
 // Delete existing completed run based on ID
 router.delete("/:id", (req, res) => {
-    logger.info("CompletedRun DELETE REQUEST INITIATED");
+    logger.info("DELETE REQUEST - CompletedRun Delete Initiated");
     db.run(
         'DELETE FROM completed_runs WHERE id = ?',
         req.params.id,
         function (err, result) {
             if (err){
                 res.status(400).json({"error": res.message})
-                logger.error(`CompletedRun DELETE REQUEST FAILED: ${err}`);
+                logger.error(`DELETE REQUEST - CompletedRun Delete Failed: ${err}`);
                 return;
             }
             res.json({"message":"deleted", changes: this.changes})
-            logger.info("CompletedRun DELETE REQUEST SUCCESFUL");
+            logger.info("DELETE REQUEST - CompletedRun Deleted Successfully");
     });
 })
 
