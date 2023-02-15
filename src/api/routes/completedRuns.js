@@ -177,9 +177,9 @@ router.patch("/:id", (req, res) => {
     logger.info("PATCH REQUEST - CompletedRun Edit Initiated");
 
     const runCompleted = {
-        dateCompleted: req.body.date,
-        distanceRan: req.body.distance,
-        timeTaken: req.body.time_taken
+        dateCompleted: req.body.dateCompleted,
+        distanceRan: req.body.distanceRan,
+        timeTaken: req.body.timeTaken
     };
     
     db.run(
