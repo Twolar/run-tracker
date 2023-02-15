@@ -97,6 +97,7 @@ router.patch("/:id", (req, res) => {
         distanceRan: req.body.distance,
         timeTaken: req.body.time_taken
     };
+    
     db.run(
         `UPDATE completed_runs set 
            date = COALESCE(?,date), 
