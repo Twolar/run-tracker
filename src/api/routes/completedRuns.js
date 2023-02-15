@@ -1,10 +1,18 @@
 const express = require('express');
-const {logger} = require('../utility/logger');
-const db = require('../database');
+const {logger} = require('../../utility/logger');
+const db = require('../../utility/database');
 
 const router = express.Router();
 
-// Get all completed runs
+/**
+ * @openapi
+ * /completedRuns/:
+ *   get:
+ *     summary: Get all completed runs
+ *     responses:
+ *       200:
+ *         description: Got all completed runs.
+ */
 router.get('/', (req, res) => {
     logger.info("GET REQUEST - CompletedRuns Fetch Initiated");
 
@@ -24,7 +32,22 @@ router.get('/', (req, res) => {
       });
 });
 
-// Get single completed run based on ID
+/**
+ * @openapi
+ * /completedRuns/{id}:
+ *   get:
+ *     summary: Get a single completed run
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: Numeric ID of the completed run to retrieve.
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Got a single completed run
+ */
 router.get("/:id", (req, res) => {
     logger.info("GET REQUEST - CompletedRun Fetch Initiated");
 
@@ -45,7 +68,34 @@ router.get("/:id", (req, res) => {
       });
 });
 
-// Add new completed run
+/**
+ * @openapi
+ * /completedRuns/create:
+ *   post:
+ *     summary: Add new completed run
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *                dateCompleted:
+ *                 type: string
+ *                 description: Date of run
+ *                 example: 'YYYY-MM-DD'
+ *                distanceRan:
+ *                 type: decimal
+ *                 description: How far was the run in KMs
+ *                 example: 5.5
+ *                timeTaken:
+ *                 type: decimal
+ *                 description: How long the run took in minutes
+ *                 example: 25
+ *     responses:
+ *       201:
+ *         description: Added new completed run
+ */
 router.post('/create', (req, res) => {
     logger.info("POST REQUEST - CompletedRun Created Initiated");
 
@@ -88,7 +138,41 @@ router.post('/create', (req, res) => {
     });
 });
 
-// Update existing completed run based on ID
+/**
+ * @openapi
+ * /completedRuns/{id}:
+ *   patch:
+ *     summary: Update existing completed run based on ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: Numeric ID of the completed run to update.
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *                dateCompleted:
+ *                 type: string
+ *                 description: Date of run
+ *                 example: 'YYYY-MM-DD'
+ *                distanceRan:
+ *                 type: decimal
+ *                 description: How far was the run in KMs
+ *                 example: 5.5
+ *                timeTaken:
+ *                 type: decimal
+ *                 description: How long the run took in minutes
+ *                 example: 25
+ *     responses:
+ *       200:
+ *         description: Updated existing run
+ */
 router.patch("/:id", (req, res) => {
     logger.info("PATCH REQUEST - CompletedRun Edit Initiated");
 
@@ -120,7 +204,22 @@ router.patch("/:id", (req, res) => {
     });
 });
 
-// Delete existing completed run based on ID
+/**
+ * @openapi
+ * /completedRuns/{id}:
+ *   delete:
+ *     summary: Delete existing completed run based on ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: Numeric ID of the completed run to delete.
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Deleted existing completed run based on ID
+ */
 router.delete("/:id", (req, res) => {
     logger.info("DELETE REQUEST - CompletedRun Delete Initiated");
     db.run(

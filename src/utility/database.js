@@ -1,4 +1,4 @@
-const {logger} = require('./utility/logger');
+const {logger} = require('./logger');
 const sqlite3 = require('sqlite3').verbose();
 
 const DBSOURCE = "db.sqlite"

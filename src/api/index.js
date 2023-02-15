@@ -1,21 +1,29 @@
 const express = require('express');
-
-const completedRuns = require('./completedRuns'); 
+const completedRuns = require('./routes/completedRuns'); 
+const swaggerJsdoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
 
 const router = express.Router();
 
-const swaggerUi = require('swagger-ui-express');
-const swaggerDocument = require('../../swagger.json');
-
-router.use('/api-docs', swaggerUi.serve);
-router.get('/api-docs', swaggerUi.setup(swaggerDocument));
-
-router.get('/', (req, res) => {
-  res.json({
-    message: 'API - 👋🌎🌍🌏',
-  });
-});
-
 router.use('/completedRuns', completedRuns);
+
+const options = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'Taylor\'s Run Tracker API',
+      version: '1.0.0',
+    },
+    servers: [
+      {
+        url: '/api/v1',
+        description: 'Default',
+      },
+    ],
+  },
+  apis: ['./src/api/routes/completedRuns.js'], // files containing annotations as above
+};
+const openapiSpecification = swaggerJsdoc(options);
+router.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openapiSpecification));
 
 module.exports = router;
