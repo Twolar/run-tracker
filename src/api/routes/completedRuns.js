@@ -1,6 +1,7 @@
 const express = require('express');
 const {logger} = require('../../utility/logger');
 const db = require('../../utility/database');
+const CompletedRun = require('../models/completedRunModel');
 
 const router = express.Router();
 
@@ -114,14 +115,10 @@ router.post('/create', (req, res) => {
         return;
     }
 
-    const runCompleted = {
-        dateCompleted: req.body.dateCompleted,
-        distanceRan: req.body.distanceRan,
-        timeTaken: req.body.timeTaken
-    };
+    let newRunCompleted = new CompletedRun(req.body.dateCompleted, req.body.distanceRan, req.body.timeTaken);
 
     var sql = 'INSERT INTO completed_runs (date, distance, time_taken) VALUES (?,?,?)';
-    var params = [runCompleted.dateCompleted, runCompleted.distanceRan, runCompleted.timeTaken];
+    var params = [newRunCompleted.dateCompleted, newRunCompleted.distanceRan, newRunCompleted.timeTaken];
 
     db.run(sql, params, function (err, result) {
         if (err) {
@@ -131,7 +128,7 @@ router.post('/create', (req, res) => {
         }
         res.json({
             "message": "success",
-            "data": runCompleted,
+            "data": newRunCompleted,
             "id" : this.lastID
         });
         logger.info("POST REQUEST - CompletedRun Created Successfully");
@@ -176,11 +173,7 @@ router.post('/create', (req, res) => {
 router.patch("/:id", (req, res) => {
     logger.info("PATCH REQUEST - CompletedRun Edit Initiated");
 
-    const runCompleted = {
-        dateCompleted: req.body.dateCompleted,
-        distanceRan: req.body.distanceRan,
-        timeTaken: req.body.timeTaken
-    };
+    let updatedRunCompleted = new CompletedRun(req.body.dateCompleted, req.body.distanceRan, req.body.timeTaken);
     
     db.run(
         `UPDATE completed_runs set 
@@ -188,7 +181,7 @@ router.patch("/:id", (req, res) => {
            distance = COALESCE(?,distance), 
            time_taken = COALESCE(?,time_taken) 
            WHERE id = ?`,
-        [runCompleted.dateCompleted, runCompleted.distanceRan, runCompleted.timeTaken, req.params.id],
+        [updatedRunCompleted.dateCompleted, updatedRunCompleted.distanceRan, updatedRunCompleted.timeTaken, req.params.id],
         function (err, result) {
             if (err) {
                 res.status(400).json({"error": res.message})
@@ -197,7 +190,7 @@ router.patch("/:id", (req, res) => {
             }
             res.json({
                 message: "success",
-                data: runCompleted,
+                data: updatedRunCompleted,
                 changes: this.changes
             });
             logger.info("PATCH REQUEST - CompletedRun Edited Successfully");
