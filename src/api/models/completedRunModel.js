@@ -1,4 +1,5 @@
 class CompletedRun {
+    id;
     dateCompleted;
     distanceRan;
     timeTaken;
