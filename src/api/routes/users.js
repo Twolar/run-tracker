@@ -9,10 +9,12 @@ const router = express.Router();
  * @openapi
  * /users/:
  *   get:
- *     summary: Get all completed runs
+ *     summary: Get all users
+ *     tags:
+ *       - users
  *     responses:
  *       200:
- *         description: Got all completed runs.
+ *         description: Got all users.
  */
 router.get('/', (req, res) => {
     logger.info("GET REQUEST - Users Fetch Initiated");
@@ -69,71 +71,73 @@ router.get('/', (req, res) => {
 //       });
 // });
 
-// /**
-//  * @openapi
-//  * /completedRuns/create:
-//  *   post:
-//  *     summary: Add new completed run
-//  *     requestBody:
-//  *       required: true
-//  *       content:
-//  *         application/json:
-//  *           schema:
-//  *             type: object
-//  *             properties:
-//  *                dateCompleted:
-//  *                 type: string
-//  *                 description: Date of run
-//  *                 example: 'YYYY-MM-DD'
-//  *                distanceRan:
-//  *                 type: decimal
-//  *                 description: How far was the run in KMs
-//  *                 example: 5.5
-//  *                timeTaken:
-//  *                 type: decimal
-//  *                 description: How long the run took in minutes
-//  *                 example: 25
-//  *     responses:
-//  *       201:
-//  *         description: Added new completed run
-//  */
-// router.post('/create', (req, res) => {
-//     logger.info("POST REQUEST - CompletedRun Created Initiated");
+/**
+ * @openapi
+ * /users/create:
+ *   post:
+ *     summary: Add new user
+ *     tags:
+ *       - users
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *                email:
+ *                 type: string
+ *                 description: user email address
+ *                 example: 'test@test.com'
+ *                username:
+ *                 type: string
+ *                 description: username
+ *                 example: ddot
+ *                password:
+ *                 type: string
+ *                 description: user password
+ *                 example: OwenWilsonWow
+ *     responses:
+ *       201:
+ *         description: Added new user
+ */
+router.post('/create', (req, res) => {
+    logger.info("POST REQUEST - User Created Initiated");
 
-//     let errors = [];
-//     if (!req.body.dateCompleted){
-//         errors.push("No dateCompleted specified");
-//     }
-//     if (!req.body.distanceRan){
-//         errors.push("No distanceRan specified");
-//     }
-//     if (!req.body.timeTaken){
-//         errors.push("No timeTaken specified");
-//     }
-//     if (errors.length){
-//         res.status(400).json({"error":errors.join(",")});
-//         return;
-//     }
+    let errors = [];
+    if (!req.body.email){
+        errors.push("No email specified");
+    }
+    if (!req.body.username){
+        errors.push("No username specified");
+    }
+    if (!req.body.password){
+        errors.push("No password specified");
+    }
+    if (errors.length){
+        res.status(400).json({"error":errors.join(",")});
+        return;
+    }
 
-//     let newRunCompleted = new CompletedRun(req.body.dateCompleted, req.body.distanceRan, req.body.timeTaken);
+    let user = new User(req.body.email, req.body.username, req.body.password);
 
-//     var sql = 'INSERT INTO completed_runs (date, distance, time_taken) VALUES (?,?,?)';
-//     var params = [newRunCompleted.dateCompleted, newRunCompleted.distanceRan, newRunCompleted.timeTaken];
+    var sql = 'INSERT INTO users (email, username, password) VALUES (?,?,?)';
+    var params = [user.email, user.username, user.password];
 
-//     db.run(sql, params, function (err, result) {
-//         if (err) {
-//             res.status(400).json({"error": err.message})
-//             logger.error(`POST REQUEST - CompletedRun Created Failed: ${err}`);
-//             return;
-//         }
-//         res.json({
-//             "message": "success",
-//             "data": newRunCompleted,
-//             "id" : this.lastID
-//         });
-//         logger.info("POST REQUEST - CompletedRun Created Successfully");
-//     });
-// });
+    db.run(sql, params, function (err, result) {
+        if (err) {
+            res.status(400).json({"error": err.message})
+            logger.error(`POST REQUEST - CompletedRun Created Failed: ${err}`);
+            return;
+        }
+        res.json({
+            "message": "success",
+            "data": user,
+            "id" : this.lastID
+        });
+        logger.info("POST REQUEST - CompletedRun Created Successfully");
+    });
+});
 
 // /**
 //  * @openapi
