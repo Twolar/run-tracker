@@ -2,6 +2,9 @@ const express = require('express');
 const {logger} = require('../../utility/logger');
 const db = require('../../utility/database');
 const User = require('../models/userModel');
+const bcrypt = require ('bcrypt'); // bcrypt
+
+const saltRounds = 10; // data processing time
 
 const router = express.Router();
 
@@ -119,23 +122,97 @@ router.post('/create', (req, res) => {
         return;
     }
 
-    let user = new User(req.body.email, req.body.username, req.body.password);
-
-    var sql = 'INSERT INTO users (email, username, password) VALUES (?,?,?)';
-    var params = [user.email, user.username, user.password];
-
-    db.run(sql, params, function (err, result) {
-        if (err) {
-            res.status(400).json({"error": err.message})
-            logger.error(`POST REQUEST - CompletedRun Created Failed: ${err}`);
-            return;
-        }
-        res.json({
-            "message": "success",
-            "data": user,
-            "id" : this.lastID
+    var sqlStatement = 'INSERT INTO users (email, username, password) VALUES (?,?,?)';
+    
+    // salt, hash, and store
+    bcrypt.hash(req.body.password, saltRounds, function(err, hashedPassword) {
+        let user = new User(req.body.email, req.body.username, hashedPassword);
+        // store hash in database
+        var params = [user.email, user.username, user.password];
+        db.run(sqlStatement, params, function (err, result) {
+            if (err) {
+                res.status(400).json({"error": err.message})
+                logger.error(`POST REQUEST - User Created Failed: ${err}`);
+                return;
+            }
+            res.json({
+                "message": "success",
+                "data": { 
+                    "email": user.email,
+                    "username": user.username 
+                },
+                "id" : this.lastID
+            });
+            logger.info("POST REQUEST - User Created Successfully");
         });
-        logger.info("POST REQUEST - CompletedRun Created Successfully");
+    }); 
+});
+
+/**
+ * @openapi
+ * /users/login:
+ *   post:
+ *     summary: User login
+ *     tags:
+ *       - users
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *                username:
+ *                 type: string
+ *                 description: username
+ *                 example: ddot
+ *                password:
+ *                 type: string
+ *                 description: user password
+ *                 example: OwenWilsonWow
+ *     responses:
+ *       201:
+ *         description: User login
+ */
+router.post('/login', (req, res) => {
+    logger.info("POST REQUEST - User Login Initiated");
+
+    let errors = [];
+    if (!req.body.username){
+        errors.push("No username specified");
+    }
+    if (!req.body.password){
+        errors.push("No password specified");
+    }
+    if (errors.length){
+        res.status(400).json({"error":errors.join(",")});
+        return;
+    }
+
+    var sqlStatement = 'SELECT password FROM users WHERE username = ?';
+    
+    db.get(sqlStatement, [req.body.username], function (dbError, dbRowResult) {
+        if (dbError) {
+            res.status(400).json({"error": dbError.message})
+            logger.error(`POST REQUEST - User Login Failed: ${dbError}`);
+            return;
+        } else {
+            var userHash = dbRowResult.password;
+            // compare hash and password
+            bcrypt.compare(req.body.password, userHash, function(compareError, compareResult) {
+                if (compareError) {
+                    res.status(401).json({"error": compareError.message})
+                    logger.error(`POST REQUEST - User Login Failed: ${compareError}`);
+                    return;
+                } else {
+                    res.json({
+                        "message": "success",
+                        "loginResult": compareResult,
+                    });
+                    logger.info("POST REQUEST - User Login Successfully");
+                }
+            });
+        }
     });
 });
 

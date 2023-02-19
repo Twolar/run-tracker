@@ -2,17 +2,12 @@ class User {
     id;
     email;
     username;
-    hashedPassword;
-    salt;
+    password;
 
     constructor(email, username, password) {
         this.email = email;
         this.username = username;
-        this.hashedPassword = password;
-    }
-
-    SetSalt(salt) {
-        this.salt = salt
+        this.password = password;
     }
 }
 
