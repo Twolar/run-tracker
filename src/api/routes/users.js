@@ -38,41 +38,43 @@ router.get('/', (req, res) => {
       });
 });
 
-// /**
-//  * @openapi
-//  * /completedRuns/{id}:
-//  *   get:
-//  *     summary: Get a single completed run
-//  *     parameters:
-//  *       - in: path
-//  *         name: id
-//  *         required: true
-//  *         description: Numeric ID of the completed run to retrieve.
-//  *         schema:
-//  *           type: integer
-//  *     responses:
-//  *       200:
-//  *         description: Got a single completed run
-//  */
-// router.get("/:id", (req, res) => {
-//     logger.info("GET REQUEST - CompletedRun Fetch Initiated");
+/**
+ * @openapi
+ * /users/{id}:
+ *   get:
+ *     summary: Get a single user
+ *     tags:
+ *       - users
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: Numeric ID of the user to retrieve.
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Got a single user
+ */
+router.get("/:id", (req, res) => {
+    logger.info("GET REQUEST - User Fetch Initiated");
 
-//     var sql = "select * from completed_runs where id = ?"
-//     var params = [req.params.id]
+    var sql = "SELECT * FROM users where id = ?"
+    var params = [req.params.id]
 
-//     db.get(sql, params, (err, row) => {
-//         if (err) {
-//           res.status(400).json({"error":err.message});
-//           logger.error(`GET REQUEST - CompletedRun Fetched Failed: ${err}`);
-//           return;
-//         }
-//         res.json({
-//             "message":"success",
-//             "data":row
-//         });
-//         logger.info("GET REQUEST - CompletedRun Fetched Successfully");
-//       });
-// });
+    db.get(sql, params, (err, dbResultRow) => {
+        if (err) {
+          res.status(400).json({"error":err.message});
+          logger.error(`GET REQUEST - User Fetch Failed: ${err}`);
+          return;
+        }
+        res.json({
+            "message":"success",
+            "data": dbResultRow
+        });
+        logger.info("GET REQUEST - User Fetched Successfully");
+      });
+});
 
 /**
  * @openapi
@@ -216,99 +218,101 @@ router.post('/login', (req, res) => {
     });
 });
 
-// /**
-//  * @openapi
-//  * /completedRuns/{id}:
-//  *   patch:
-//  *     summary: Update existing completed run based on ID
-//  *     parameters:
-//  *       - in: path
-//  *         name: id
-//  *         required: true
-//  *         description: Numeric ID of the completed run to update.
-//  *         schema:
-//  *           type: integer
-//  *     requestBody:
-//  *       required: false
-//  *       content:
-//  *         application/json:
-//  *           schema:
-//  *             type: object
-//  *             properties:
-//  *                dateCompleted:
-//  *                 type: string
-//  *                 description: Date of run
-//  *                 example: 'YYYY-MM-DD'
-//  *                distanceRan:
-//  *                 type: decimal
-//  *                 description: How far was the run in KMs
-//  *                 example: 5.5
-//  *                timeTaken:
-//  *                 type: decimal
-//  *                 description: How long the run took in minutes
-//  *                 example: 25
-//  *     responses:
-//  *       200:
-//  *         description: Updated existing run
-//  */
-// router.patch("/:id", (req, res) => {
-//     logger.info("PATCH REQUEST - CompletedRun Edit Initiated");
+/**
+ * @openapi
+ * /users/{id}:
+ *   patch:
+ *     summary: Update existing user details based on ID
+ *     tags:
+ *       - users
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: Numeric ID of the user details to update.
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *                email:
+ *                 type: string
+ *                 description: user email address
+ *                 example: 'test@test.com'
+ *                username:
+ *                 type: string
+ *                 description: username
+ *                 example: ddot
+ *     responses:
+ *       200:
+ *         description: Updated existing run
+ */
+router.patch("/:id", (req, res) => {
+    logger.info("PATCH REQUEST - User Edit Initiated");
 
-//     let updatedRunCompleted = new CompletedRun(req.body.dateCompleted, req.body.distanceRan, req.body.timeTaken);
+    let updatedUser = new User(req.body.email, req.body.username, "");
     
-//     db.run(
-//         `UPDATE completed_runs set 
-//            date = COALESCE(?,date), 
-//            distance = COALESCE(?,distance), 
-//            time_taken = COALESCE(?,time_taken) 
-//            WHERE id = ?`,
-//         [updatedRunCompleted.dateCompleted, updatedRunCompleted.distanceRan, updatedRunCompleted.timeTaken, req.params.id],
-//         function (err, result) {
-//             if (err) {
-//                 res.status(400).json({"error": res.message})
-//                 logger.error(`PATCH REQUEST - CompletedRun Edit Failed: ${err}`);
-//                 return;
-//             }
-//             res.json({
-//                 message: "success",
-//                 data: updatedRunCompleted,
-//                 changes: this.changes
-//             });
-//             logger.info("PATCH REQUEST - CompletedRun Edited Successfully");
-//     });
-// });
+    db.run(
+        `UPDATE users set 
+           email = COALESCE(?,email), 
+           username = COALESCE(?,username) 
+           WHERE id = ?`,
+        [updatedUser.email, updatedUser.username, req.params.id],
+        function (err, result) {
+            if (err) {
+                res.status(400).json({"error": res.message})
+                logger.error(`PATCH REQUEST - User Edit Failed: ${err}`);
+                return;
+            }
+            res.json({
+                message: "success",
+                data: {
+                    "email": updatedUser.email,
+                    "username": updatedUser.username
+                },
+                changes: this.changes
+            });
+            logger.info("PATCH REQUEST - User Edited Successfully");
+    });
+});
 
-// /**
-//  * @openapi
-//  * /completedRuns/{id}:
-//  *   delete:
-//  *     summary: Delete existing completed run based on ID
-//  *     parameters:
-//  *       - in: path
-//  *         name: id
-//  *         required: true
-//  *         description: Numeric ID of the completed run to delete.
-//  *         schema:
-//  *           type: integer
-//  *     responses:
-//  *       200:
-//  *         description: Deleted existing completed run based on ID
-//  */
-// router.delete("/:id", (req, res) => {
-//     logger.info("DELETE REQUEST - CompletedRun Delete Initiated");
-//     db.run(
-//         'DELETE FROM completed_runs WHERE id = ?',
-//         req.params.id,
-//         function (err, result) {
-//             if (err){
-//                 res.status(400).json({"error": res.message})
-//                 logger.error(`DELETE REQUEST - CompletedRun Delete Failed: ${err}`);
-//                 return;
-//             }
-//             res.json({"message":"deleted", changes: this.changes})
-//             logger.info("DELETE REQUEST - CompletedRun Deleted Successfully");
-//     });
-// });
+/**
+ * @openapi
+ * /users/{id}:
+ *   delete:
+ *     summary: Delete existing user based on ID
+ *     tags:
+ *       - users
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: Numeric ID of the user to delete.
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Deleted existing user based on ID
+ */
+router.delete("/:id", (req, res) => {
+    logger.info("DELETE REQUEST - User Delete Initiated");
+    db.run(
+        'DELETE FROM users WHERE id = ?',
+        req.params.id,
+        function (err, result) {
+            if (err){
+                res.status(400).json({"error": res.message})
+                logger.error(`DELETE REQUEST - User Delete Failed: ${err}`);
+                return;
+            }
+            res.json({"message":"deleted", changes: this.changes})
+            logger.info("DELETE REQUEST - User Deleted Successfully");
+    });
+});
 
 //#region Other Methods
 
