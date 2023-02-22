@@ -33,7 +33,8 @@ let db = new sqlite3.Database(DBSOURCE, (err) => {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             email TEXT, 
             username TEXT, 
-            password TEXT 
+            password TEXT,
+            token TEXT
             )`,
         (err) => {
             if (err) {
@@ -41,8 +42,8 @@ let db = new sqlite3.Database(DBSOURCE, (err) => {
             } else {
                 // Table just created, creating an example row
                 logger.info('Table "users" freshly created, creating an example row');
-                var insert = 'INSERT INTO users (email, username, password) VALUES (?,?,?)';
-                db.run(insert, ["test@test.com", "tbennett", "test1234"]);
+                var insert = 'INSERT INTO users (email, username, password, token) VALUES (?,?,?,?)';
+                db.run(insert, ["test@test.com", "tbennett", "test1234", ""]);
             }
         });
     }

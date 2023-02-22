@@ -2,11 +2,17 @@ const express = require('express');
 const {logger} = require('../../utility/logger');
 const db = require('../../utility/database');
 const User = require('../models/userModel');
-const bcrypt = require ('bcrypt'); // bcrypt
+const bcrypt = require ('bcrypt');
+const passport = require('passport');
 
 const saltRounds = 10; // data processing time
 
 const router = express.Router();
+
+checkAuthenticated = (req, res, next) => {
+    if (req.isAuthenticated()) { return next() }
+    res.redirect("/login")
+}
 
 /**
  * @openapi
@@ -56,7 +62,7 @@ router.get('/', (req, res) => {
  *       200:
  *         description: Got a single user
  */
-router.get("/:id", (req, res) => {
+router.get("/:id", checkAuthenticated, (req, res) => {
     logger.info("GET REQUEST - User Fetch Initiated");
 
     var sql = "SELECT * FROM users where id = ?"
@@ -176,45 +182,17 @@ router.post('/create', (req, res) => {
  *       201:
  *         description: User login
  */
-router.post('/login', (req, res) => {
-    logger.info("POST REQUEST - User Login Initiated");
+router.post('/login', passport.authenticate('local'), (req, res) => { 
+    res.json({
+        "message": "success"
+    });
+});
 
-    let errors = [];
-    if (!req.body.username){
-        errors.push("No username specified");
-    }
-    if (!req.body.password){
-        errors.push("No password specified");
-    }
-    if (errors.length){
-        res.status(400).json({"error":errors.join(",")});
-        return;
-    }
-
-    var sqlStatement = 'SELECT password FROM users WHERE username = ?';
-    
-    db.get(sqlStatement, [req.body.username], function (dbError, dbRowResult) {
-        if (dbError) {
-            res.status(400).json({"error": dbError.message})
-            logger.error(`POST REQUEST - User Login Failed: ${dbError}`);
-            return;
-        } else {
-            var userHash = dbRowResult.password;
-            // compare hash and password
-            bcrypt.compare(req.body.password, userHash, function(compareError, compareResult) {
-                if (compareError) {
-                    res.status(401).json({"error": compareError.message})
-                    logger.error(`POST REQUEST - User Login Failed: ${compareError}`);
-                    return;
-                } else {
-                    res.json({
-                        "message": "success",
-                        "loginResult": compareResult,
-                    });
-                    logger.info("POST REQUEST - User Login Successfully");
-                }
-            });
-        }
+router.delete('/logout', function (req, res){
+    req.session.destroy(function (err) {
+        res.json({
+            "message": "success"
+        });
     });
 });
 
