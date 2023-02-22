@@ -188,6 +188,17 @@ router.post('/login', passport.authenticate('local'), (req, res) => {
     });
 });
 
+/**
+ * @openapi
+ * /users/logout:
+ *   delete:
+ *     summary: User logout
+ *     tags:
+ *       - users
+ *     responses:
+ *       201:
+ *         description: User logout
+ */
 router.delete('/logout', function (req, res){
     req.session.destroy(function (err) {
         res.json({
