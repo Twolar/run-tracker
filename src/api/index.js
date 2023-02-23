@@ -1,14 +1,9 @@
 const express = require('express');
-const {logger} = require('../utility/logger');
 const completedRuns = require('./routes/completedRuns');
 const users = require('./routes/users');
 const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 
-
-// require('dotenv').config();
-// const db = require('../utility/database');
-// const bcrypt = require ('bcrypt');
 const passport = require('passport');
 const session = require('express-session');
 const LocalStrategy = require('passport-local').Strategy
