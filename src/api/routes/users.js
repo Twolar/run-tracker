@@ -3,8 +3,8 @@ const {logger} = require('../../utility/logger');
 const db = require('../../utility/database');
 const User = require('../models/userModel');
 const bcrypt = require ('bcrypt');
-const passport = require('passport');
 const authentication = require('../../utility/authentication');
+const e = require('express');
 
 const saltRounds = 10; // data processing time
 
@@ -28,16 +28,20 @@ router.get('/', (req, res) => {
     var params = []
     db.all(sql, params, (err, rows) => {
         if (err) {
-          res.status(400).json({"error":err.message});
-          logger.error(`GET REQUEST - Users Fetch Failed: ${err}`);
-          return;
+            res.status(400).json({
+                "success": false, 
+                "message": err.message
+            });
+            logger.error(`GET REQUEST - Users Fetch Failed: ${err}`);
+            return;
+        } else {
+            res.json({
+                "success": true,
+                "data": rows
+            });
+            logger.info("GET REQUEST - Users Fetched Succesfully");
         }
-        res.json({
-            "message":"success",
-            "data":rows
-        });
-        logger.info("GET REQUEST - Users Fetched Succesfully");
-      });
+    });
 });
 
 /**
@@ -66,16 +70,20 @@ router.get("/:id", authentication.checkAuthenticated, (req, res) => {
 
     db.get(sql, params, (err, dbResultRow) => {
         if (err) {
-          res.status(400).json({"error":err.message});
-          logger.error(`GET REQUEST - User Fetch Failed: ${err}`);
-          return;
+            res.status(400).json({
+                "success": false, 
+                "message": err.message
+            });
+            logger.error(`GET REQUEST - User Fetch Failed: ${err}`);
+            return;
+        } else {
+            res.json({
+                "success": true,
+                "data": dbResultRow
+            });
+            logger.info("GET REQUEST - User Fetched Successfully");
         }
-        res.json({
-            "message":"success",
-            "data": dbResultRow
-        });
-        logger.info("GET REQUEST - User Fetched Successfully");
-      });
+    });
 });
 
 /**
@@ -122,7 +130,10 @@ router.post('/create', (req, res) => {
         errors.push("No password specified");
     }
     if (errors.length){
-        res.status(400).json({"error":errors.join(",")});
+        res.status(400).json({
+            "success": false,
+            "message": errors.join(",")
+        });
         return;
     }
 
@@ -135,19 +146,23 @@ router.post('/create', (req, res) => {
         var params = [user.email, user.username, user.password];
         db.run(sqlStatement, params, function (err, result) {
             if (err) {
-                res.status(400).json({"error": err.message})
+                res.status(400).json({
+                    "success": false, 
+                    "message": err.message
+                });
                 logger.error(`POST REQUEST - User Created Failed: ${err}`);
                 return;
+            } else {
+                res.json({
+                    "success": true,
+                    "data": { 
+                        "email": user.email,
+                        "username": user.username 
+                    },
+                    "id" : this.lastID
+                });
+                logger.info("POST REQUEST - User Created Successfully");
             }
-            res.json({
-                "message": "success",
-                "data": { 
-                    "email": user.email,
-                    "username": user.username 
-                },
-                "id" : this.lastID
-            });
-            logger.info("POST REQUEST - User Created Successfully");
         });
     }); 
 });
@@ -180,7 +195,7 @@ router.post('/create', (req, res) => {
  */
 router.post('/login', authentication.authenticateMe, (req, res) => { 
     res.json({
-        "message": "success"
+        "success": true
     });
 });
 
@@ -196,10 +211,20 @@ router.post('/login', authentication.authenticateMe, (req, res) => {
  *         description: User logout
  */
 router.delete('/logout', function (req, res){
+    logger.info(`DELETE REQUEST - User Logout Initiated`);
     req.session.destroy(function (err) {
-        res.json({
-            "message": "success"
-        });
+        if (err) {
+            res.status(400).json({
+                "success": false, 
+                "message": err.message
+            });
+            logger.error(`DELETE REQUEST - User Logout Failed: ${err}`);
+        } else {
+            res.json({
+                "success": true
+            });
+            logger.info(`DELETE REQUEST - User Logout Succesful`);
+        }
     });
 });
 
@@ -241,27 +266,30 @@ router.patch("/:id", (req, res) => {
 
     let updatedUser = new User(req.body.email, req.body.username, "");
     
-    db.run(
-        `UPDATE users set 
+    db.run(`UPDATE users set 
            email = COALESCE(?,email), 
            username = COALESCE(?,username) 
            WHERE id = ?`,
         [updatedUser.email, updatedUser.username, req.params.id],
         function (err, result) {
             if (err) {
-                res.status(400).json({"error": res.message})
+                res.status(400).json({
+                    "success": false, 
+                    "message": err.message
+                });
                 logger.error(`PATCH REQUEST - User Edit Failed: ${err}`);
                 return;
+            } else {
+                res.json({
+                    "success": true,
+                    "data": {
+                        "email": updatedUser.email,
+                        "username": updatedUser.username
+                    },
+                    "changes": this.changes
+                });
+                logger.info("PATCH REQUEST - User Edited Successfully");
             }
-            res.json({
-                message: "success",
-                data: {
-                    "email": updatedUser.email,
-                    "username": updatedUser.username
-                },
-                changes: this.changes
-            });
-            logger.info("PATCH REQUEST - User Edited Successfully");
     });
 });
 
@@ -285,17 +313,23 @@ router.patch("/:id", (req, res) => {
  */
 router.delete("/:id", (req, res) => {
     logger.info("DELETE REQUEST - User Delete Initiated");
-    db.run(
-        'DELETE FROM users WHERE id = ?',
+    db.run('DELETE FROM users WHERE id = ?',
         req.params.id,
         function (err, result) {
             if (err){
-                res.status(400).json({"error": res.message})
+                res.status(400).json({
+                    "success": false, 
+                    "message": err.message
+                });
                 logger.error(`DELETE REQUEST - User Delete Failed: ${err}`);
                 return;
+            } else {
+                res.json({
+                    "success": true, 
+                    "changes": this.changes
+                });
+                logger.info("DELETE REQUEST - User Deleted Successfully");
             }
-            res.json({"message":"deleted", changes: this.changes})
-            logger.info("DELETE REQUEST - User Deleted Successfully");
     });
 });
 
