@@ -178,7 +178,7 @@ router.post('/create', (req, res) => {
  *       201:
  *         description: User login
  */
-router.post('/login', passport.authenticate('local'), (req, res) => { 
+router.post('/login', authentication.authenticateMe, (req, res) => { 
     res.json({
         "message": "success"
     });
