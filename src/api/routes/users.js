@@ -4,20 +4,11 @@ const db = require('../../utility/database');
 const User = require('../models/userModel');
 const bcrypt = require ('bcrypt');
 const passport = require('passport');
+const authentication = require('../../utility/authentication');
 
 const saltRounds = 10; // data processing time
 
 const router = express.Router();
-
-checkAuthenticated = (req, res, next) => {
-    if (req.isAuthenticated()) { 
-        return next() 
-    } else {
-        res.status(401).json({
-            "message": "fail"
-        });
-    }
-}
 
 /**
  * @openapi
@@ -67,7 +58,7 @@ router.get('/', (req, res) => {
  *       200:
  *         description: Got a single user
  */
-router.get("/:id", checkAuthenticated, (req, res) => {
+router.get("/:id", authentication.checkAuthenticated, (req, res) => {
     logger.info("GET REQUEST - User Fetch Initiated");
 
     var sql = "SELECT * FROM users where id = ?"
