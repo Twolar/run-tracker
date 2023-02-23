@@ -10,8 +10,13 @@ const saltRounds = 10; // data processing time
 const router = express.Router();
 
 checkAuthenticated = (req, res, next) => {
-    if (req.isAuthenticated()) { return next() }
-    res.redirect("/login")
+    if (req.isAuthenticated()) { 
+        return next() 
+    } else {
+        res.status(401).json({
+            "message": "fail"
+        });
+    }
 }
 
 /**

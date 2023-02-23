@@ -5,6 +5,7 @@ const users = require('./routes/users');
 const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 
+require('dotenv').config();
 const db = require('../utility/database');
 const bcrypt = require ('bcrypt');
 const passport = require('passport');
@@ -14,7 +15,7 @@ const LocalStrategy = require('passport-local').Strategy
 const router = express.Router();
 
 router.use(session({
-  secret: '737125800be216800722757448d1f91c17d3962c6e5d275699ea26036cb7c705',
+  secret: process.env.SESSION_SECRET,
   resave: false ,
   saveUninitialized: true ,
 }));
