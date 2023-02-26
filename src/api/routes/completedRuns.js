@@ -10,6 +10,8 @@ const router = express.Router();
  * /completedRuns/:
  *   get:
  *     summary: Get all completed runs
+ *     tags:
+ *       - completedRuns
  *     responses:
  *       200:
  *         description: Got all completed runs.
@@ -38,6 +40,8 @@ router.get('/', (req, res) => {
  * /completedRuns/{id}:
  *   get:
  *     summary: Get a single completed run
+ *     tags:
+ *       - completedRuns
  *     parameters:
  *       - in: path
  *         name: id
@@ -74,6 +78,8 @@ router.get("/:id", (req, res) => {
  * /completedRuns/create:
  *   post:
  *     summary: Add new completed run
+ *     tags:
+ *       - completedRuns
  *     requestBody:
  *       required: true
  *       content:
@@ -140,6 +146,8 @@ router.post('/create', (req, res) => {
  * /completedRuns/{id}:
  *   patch:
  *     summary: Update existing completed run based on ID
+ *     tags:
+ *       - completedRuns
  *     parameters:
  *       - in: path
  *         name: id
@@ -202,6 +210,8 @@ router.patch("/:id", (req, res) => {
  * /completedRuns/{id}:
  *   delete:
  *     summary: Delete existing completed run based on ID
+ *     tags:
+ *       - completedRuns
  *     parameters:
  *       - in: path
  *         name: id
