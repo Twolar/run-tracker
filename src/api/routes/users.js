@@ -1,4 +1,3 @@
-require('dotenv').config();
 const express = require('express');
 const {logger} = require('../../utility/logger');
 const db = require('../../utility/database');
@@ -6,9 +5,6 @@ const User = require('../models/userModel');
 const bcrypt = require ('bcrypt');
 const authentication = require('../../utility/authentication');
 const e = require('express');
-
-const passport = require('passport');
-const jwt = require('jsonwebtoken');
 
 const saltRounds = 10; // data processing time
 
@@ -25,7 +21,7 @@ const router = express.Router();
  *       200:
  *         description: Got all users.
  */
-router.get('/', authentication.jwtAuthenticate, (req, res) => {
+router.get('/', (req, res) => {
     logger.info("GET REQUEST - Users Fetch Initiated");
 
     var sql = "select * from users"
@@ -197,44 +193,11 @@ router.post('/create', (req, res) => {
  *       201:
  *         description: User login
  */
-<<<<<<< HEAD
 router.post('/login', authentication.localAuthenticate, (req, res) => { 
     res.json({
         "success": true
     });
 });
-=======
-// router.post('/login', authentication.localAuthenticate, (req, res) => { 
-//     res.json({
-//         "success": true
-//     });
-// });
-
-router.post('/login', (req, res, next) => {
-        passport.authenticate(
-            'local', (err, user, info) => {
-                try {
-                    if (err || !user) {
-                        const error = err;
-                        return next(error);
-                    }
-        
-                    req.login(user, { session: true }, (error) => {
-                        if (error) return next(error);
-        
-                        const body = { _id: user._id, email: user.username };
-                        const token = jwt.sign({ user: body }, process.env.TOKEN_KEY);
-        
-                        return res.json({ token });
-                    });
-                } catch (error) {
-                    return next(error);
-                }
-            }
-        )(req, res, next);
-    }
-);
->>>>>>> eae3f1c (revert back to end of local auth dev)
 
 /**
  * @openapi

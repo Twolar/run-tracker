@@ -3,7 +3,6 @@ const {logger} = require('../utility/logger');
 const db = require('../utility/database');
 const bcrypt = require ('bcrypt');
 const passport = require('passport');
-const User = require('../api/models/userModel');
 
 var authUser = (username, password, done) => {
   logger.info("Local AUTHENTICATION - User Authentication Initialized");
@@ -32,7 +31,7 @@ var authUser = (username, password, done) => {
 
 var jwtStrategy = (jwt_payload, done) => {
     logger.info("Jwt AUTHENTICATION - User Authentication Initialized");
-    var sqlStatement = 'SELECT * FROM users WHERE id = ?';
+    var sqlStatement = 'SELECT * FROM users WHERE token = ?';
     
     db.get(sqlStatement, [jwt_payload.sub], function (dbError, dbRowResult) {
         if (dbError) {
@@ -41,7 +40,7 @@ var jwtStrategy = (jwt_payload, done) => {
         } 
         if (dbRowResult) {
             let authenticated_user = { id: dbRowResult.id, username: dbRowResult.username }   
-            logger.info("Jwt AUTHENTICATION - User Authentication Successful");
+            logger.info("Local AUTHENTICATION - User Authentication Successful");
             return done(null, authenticated_user );
         } else {
             logger.error(`Jwt AUTHENTICATION - User Authentication Failed`);
