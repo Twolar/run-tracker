@@ -60,7 +60,7 @@ passport.deserializeUser((userObj, done) => {
   done (null, userObj )
 });
 
-var checkLocalAuthenticated = (req, res, next) => {
+var checkAuthenticated = (req, res, next) => {
     if (req.isAuthenticated()) { 
         return next() 
     } else {
@@ -73,4 +73,4 @@ var checkLocalAuthenticated = (req, res, next) => {
 var localAuthenticate = passport.authenticate('local');
 var jwtAuthenticate = passport.authenticate('jwt', { session: false });
 
-module.exports = { jwtStrategy, authUser, checkLocalAuthenticated, localAuthenticate, jwtAuthenticate }
+module.exports = { jwtStrategy, authUser, checkAuthenticated, localAuthenticate, jwtAuthenticate }

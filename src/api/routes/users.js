@@ -62,7 +62,7 @@ router.get('/', (req, res) => {
  *       200:
  *         description: Got a single user
  */
-router.get("/:id", authentication.checkLocalAuthenticated, (req, res) => {
+router.get("/:id", authentication.checkAuthenticated, (req, res) => {
     logger.info("GET REQUEST - User Fetch Initiated");
 
     var sql = "SELECT * FROM users where id = ?"
@@ -193,7 +193,7 @@ router.post('/create', (req, res) => {
  *       201:
  *         description: User login
  */
-router.post('/login', authentication.localAuthenticate, (req, res) => { 
+router.post('/login', authentication.authenticateMe, (req, res) => { 
     res.json({
         "success": true
     });

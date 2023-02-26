@@ -20,7 +20,7 @@ router.use(session({
 }));
 router.use(passport.initialize());
 router.use(passport.session());
-passport.use(new LocalStrategy (authentication.authUser));
+//passport.use(new LocalStrategy (authentication.authUser));
 
 var opts = {}
 opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
