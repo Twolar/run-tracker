@@ -49,6 +49,6 @@ var checkAuthenticated = (req, res, next) => {
     }
 }
 
-var authenticateMe = passport.authenticate('local');
+var localAuthenticate = passport.authenticate('local');
 
-module.exports = { authUser, checkAuthenticated, authenticateMe }
+module.exports = { authUser, checkAuthenticated, localAuthenticate }

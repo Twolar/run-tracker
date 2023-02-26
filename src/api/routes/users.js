@@ -3,7 +3,6 @@ const {logger} = require('../../utility/logger');
 const db = require('../../utility/database');
 const User = require('../models/userModel');
 const bcrypt = require ('bcrypt');
-const passport = require('passport');
 const authentication = require('../../utility/authentication');
 
 const saltRounds = 10; // data processing time
@@ -178,7 +177,7 @@ router.post('/create', (req, res) => {
  *       201:
  *         description: User login
  */
-router.post('/login', authentication.authenticateMe, (req, res) => { 
+router.post('/login', authentication.localAuthenticate, (req, res) => { 
     res.json({
         "message": "success"
     });
