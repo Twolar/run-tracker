@@ -49,4 +49,22 @@ let db = new sqlite3.Database(DBSOURCE, (err) => {
     }
 });
 
+db.FindUserById = (userId) => {
+    logger.info("DB FindUserById - User Fetch Initiated");
+
+    var sql = "SELECT 1 FROM users where id = ?"
+
+    var result = db.get(sql, [userId], (err, dbResultRow) => {
+        if (err) {
+            logger.error(`DB FindUserById - User Fetch Failed: ${err}`);
+            return null;
+        } else {
+            logger.info("DB FindUserById - User Fetched Successfully");
+            return dbResultRow
+        }
+    });
+
+    return result;
+}
+
 module.exports = db
