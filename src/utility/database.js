@@ -42,8 +42,8 @@ let db = new sqlite3.Database(DBSOURCE, (err) => {
             } else {
                 // Table just created, creating an example row
                 logger.info('Table "users" freshly created, creating an example row');
-                var insert = 'INSERT INTO users (email, username, password, token) VALUES (?,?,?,?)';
-                db.run(insert, ["test@test.com", "tbennett", "test1234", ""]);
+                var insert = 'INSERT INTO users (email, username, password) VALUES (?,?,?)';
+                db.run(insert, ["test@test.com", "tbennett", "test1234"]);
             }
         });
     }
@@ -57,7 +57,7 @@ db.FindUserById = (userId) => {
     var result = db.get(sql, [userId], (err, dbResultRow) => {
         if (err) {
             logger.error(`DB FindUserById - User Fetch Failed: ${err}`);
-            return null;
+            return false;
         } else {
             logger.info("DB FindUserById - User Fetched Successfully");
             return dbResultRow

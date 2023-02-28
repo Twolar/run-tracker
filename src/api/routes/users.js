@@ -184,15 +184,20 @@ router.post('/login', authentication.localAuthenticate, (req, res) => {
 });
 
 router.post('/generateToken', (req, res) => { 
-    //var user = authentication.verifyUserLogin(req.body.username, req.body.password);
     authentication.verifyUserLogin(req.body.username, req.body.password)
-        .then((result) => {
+    .then((user) => {
+        if (user) {
             // Generate JWT token
-            var token = authentication.genToken(result);
+            var token = authentication.genToken(user);
             res.status(200).json({
                 token
             });
-        });
+        } else {
+            res.status(401).json({
+                "message": "fail"
+            });
+        }
+    });
 });
 
 /**

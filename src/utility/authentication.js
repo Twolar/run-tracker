@@ -6,52 +6,55 @@ const passport = require('passport');
 
 const jwt = require('jsonwebtoken');
 
-var verifyUserLogin = async (username, password) => {
-    var sqlStatement = 'SELECT * FROM users WHERE username = ?';
-    var user = await db.get(sqlStatement, [username], function (dbError, dbRowResult) {
-        if (dbError) {
-            logger.error(`verifyUserLogin - DB Get User Failed: ${dbError}`);
-            return null;
-        } else {
-            logger.info("verifyUserLogin - DB Get User Successful");
-            return dbRowResult;
-        }
+var verifyUserLogin = (username, password) => {
+    return new Promise( (resolve, reject) => {
+        var sqlStatement = 'SELECT * FROM users WHERE username = ?';
+        db.get(sqlStatement, [username], function (dbError, dbRowResult) {
+            if (dbError) {
+                logger.error(`verifyUserLogin - DB Get User Failed: ${dbError}`);
+                resolve(false);
+            } else {
+                logger.info("verifyUserLogin - DB Get User Successful");
+                var userHash = dbRowResult.password;
+                // compare hash and password
+                bcrypt.compare(password, userHash, function(compareError, compareResult) {
+                    if (compareError) {
+                        logger.error(`verifyUserLogin - User Authentication Failed: ${compareError}`);
+                        resolve(false);
+                    }
+                    if (compareResult) {
+                        logger.info(`verifyUserLogin - User Authentication Successful with CompareResult = ${compareResult}`);
+                        resolve(dbRowResult);
+                    } else {
+                        logger.error(`verifyUserLogin - User Authentication Failed with CompareResult = ${compareResult}`);
+                        resolve(false);
+                    }
+                });
+            }
+        });
     });
-
-    var userHash = user.password;
-    // compare hash and password
-    var loginResult = await bcrypt.compare(password, userHash, function(compareError, compareResult) {
-        if (compareError) {
-            logger.error(`verifyUserLogin - User Authentication Failed: ${compareError}`);
-            return null;
-        } else {
-            logger.info("verifyUserLogin - User Authentication Successful");
-            return compareResult;
-        }
-    });
-
-    logger.info("verifyUserLogin - Successful");
-    return user;
 }
 
 var authUser = (username, password, done) => {
     logger.info("authUser AUTHENTICATION - User Authentication Initialized");
-    var user = verifyUserLogin(username, password);
-    if (user) {
-        let authenticated_user = { id: user.id, username: user.username }   
-        logger.info("authUser AUTHENTICATION - User Authentication Successfully");
-        return done(null, authenticated_user );
-    } else {
-        logger.error(`authUser AUTHENTICATION - User Authentication Failed`);
-        return done(null, false);
-    }
+    verifyUserLogin(username, password)
+        .then((user) => {
+            if (user) {
+                let authenticated_user = { id: user.id, username: user.username }   
+                logger.info(`authUser AUTHENTICATION - User Authentication Successfully for userId ${user.id}`);
+                return done(null, authenticated_user );
+            } else {
+                logger.error(`authUser AUTHENTICATION - User Authentication Failed`);
+                return done(null, false);
+            }
+        }
+    );
 }
 
 var jwtAuthUser = (jwtPayload, done) => {
     logger.info("Jwt AUTHENTICATION - Initiated");
     var user = db.FindUserById(jwtPayload.sub);
-    logger.info(`Jwt AUTHENTICATION - user is ${user}`);
-    console.log(user);
+    logger.info(`Jwt AUTHENTICATION - jwtPayload.sub is ${jwtPayload.sub}`);
     if (user) {
         logger.info("Jwt AUTHENTICATION - Successful");
         return done(null, user);
