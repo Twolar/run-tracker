@@ -2,6 +2,7 @@ const express = require('express');
 const {logger} = require('../../utility/logger');
 const db = require('../../utility/database');
 const CompletedRun = require('../models/completedRunModel');
+const authentication = require('../../utility/authentication');
 
 const router = express.Router();
 
@@ -16,7 +17,7 @@ const router = express.Router();
  *       200:
  *         description: Got all completed runs.
  */
-router.get('/', (req, res) => {
+router.get('/', authentication.jwtAuthenticate, (req, res) => {
     logger.info("GET REQUEST - CompletedRuns Fetch Initiated");
 
     var sql = "select * from completed_runs"
