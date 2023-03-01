@@ -20,7 +20,7 @@ const router = express.Router();
  *       200:
  *         description: Got all users.
  */
-router.get('/', (req, res) => {
+router.get('/', authentication.jwtAuthenticate, (req, res) => {
     logger.info("GET REQUEST - Users Fetch Initiated");
 
     var sql = "select * from users"
@@ -180,6 +180,23 @@ router.post('/create', (req, res) => {
 router.post('/login', authentication.localAuthenticate, (req, res) => { 
     res.json({
         "message": "success"
+    });
+});
+
+router.post('/generateToken', (req, res) => { 
+    authentication.verifyUserLogin(req.body.username, req.body.password)
+    .then((user) => {
+        if (user) {
+            // Generate JWT token
+            var token = authentication.genToken(user);
+            res.status(200).json({
+                token
+            });
+        } else {
+            res.status(401).json({
+                "message": "fail"
+            });
+        }
     });
 });
 
