@@ -1,7 +1,7 @@
+require('dotenv').config();
 const {logger} = require('./src/utility/logger');
 const express = require('express');
 const api = require('./src/api');
-require('dotenv').config();
 
 const cors = require('cors');
 
