@@ -32,7 +32,7 @@ router.get('/', (req, res) => {
             "data":rows
         });
         logger.info("GET REQUEST - CompletedRuns Fetched Succesfully");
-      });
+    });
 });
 
 /**
