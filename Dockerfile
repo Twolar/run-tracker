@@ -13,8 +13,5 @@ RUN npm install
 # copy oter files as well
 COPY ./ .
 
-#expose the port
-EXPOSE 5000
-
 # command to run when intantiate an image
 CMD ["npm","start"]

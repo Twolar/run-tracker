@@ -7,19 +7,17 @@ const cors = require('cors');
 
 const app = express();
 
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 80;
 
 app.use(express.json());
 app.use('/api/v1', api);
 app.use(
   express.urlencoded(),
-  cors({
-      origin: `http://localhost:${port}`
-  })
+  cors()
 );
 
 app.listen(port, () => {
-  logger.info(`Listening: http://localhost:${port}`);
+  logger.info(`Listening on port ${port}`);
 });
 
 module.exports = app;
