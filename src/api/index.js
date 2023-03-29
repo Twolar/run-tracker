@@ -4,6 +4,7 @@ const completedRuns = require('./routes/completedRuns');
 const users = require('./routes/users');
 const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
+const cors = require('cors');
 
 const passport = require('passport');
 const session = require('express-session');
@@ -30,7 +31,7 @@ var jwtOpts = {
 };
 passport.use(new JWTStrategy(jwtOpts, authentication.jwtAuthUser));
 
-
+router.use(cors({ origin: true }));
 router.use('/completedRuns', completedRuns);
 router.use('/users', users);
 
